@@ -1,4 +1,7 @@
-# Signal Project — Performance Summary
+# Signal Status Report — 2026-10-20T22:05Z
+> Vague mode. No entry/strategy details. ECN pts basis. $0.10/pt at 0.1 lot.
+> OOS period ≈ 3 yrs (2020–23). IS period ≈ 2 yrs (2024–26). Frequency columns are estimates.
+> WP/t = net pts/trade (1R=10pt basis). W% columns are stable across time horizons.
 
 _Last updated: 2026-10-20. Validated: cycles 33-39, net of costs._
 _Units: ECN pts ($0.10/pt at 0.1 lot). Past results are not advice._
