@@ -1,0 +1,633 @@
+<title>Signal Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: 2-col split — table left, comments right */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --border: #e2e5ea;
+  --fg: #1a1d23;
+  --fg2: #5a6072;
+  --fg3: #8c95a6;
+  --accent: #3d7fff;
+  --accent-dim: #dce9ff;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+  --radius: 8px;
+  --radius-sm: 5px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10131a;
+    --surface: #181c26;
+    --surface2: #1f2436;
+    --border: #2a2f3f;
+    --fg: #e8ecf4;
+    --fg2: #8b94aa;
+    --fg3: #545d72;
+    --accent: #4d8fff;
+    --accent-dim: #1a2640;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10131a;
+  --surface: #181c26;
+  --surface2: #1f2436;
+  --border: #2a2f3f;
+  --fg: #e8ecf4;
+  --fg2: #8b94aa;
+  --fg3: #545d72;
+  --accent: #4d8fff;
+  --accent-dim: #1a2640;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.app-header h1 {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.sync-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--fg3);
+  letter-spacing: 0.04em;
+}
+.sync-badge.live { color: var(--green); border-color: rgba(34,197,94,0.3); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.table-panel {
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 16px 16px 16px 0;
+}
+
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th:first-child { padding-left: 0; }
+thead th.num { text-align: right; }
+
+tbody tr { cursor: pointer; transition: background 0.1s; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr.selected { background: var(--accent-dim); }
+tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody td:first-child { padding-left: 0; }
+tbody tr:last-child td { border-bottom: none; }
+
+.code-name { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--fg); }
+.code-desc { font-size: 11px; color: var(--fg2); margin-top: 1px; }
+.num { text-align: right; font-family: var(--mono); font-size: 12px; }
+.pf-val { font-weight: 600; }
+.pf-pass { color: var(--green); }
+.pf-warn { color: var(--amber); }
+.pf-fail { color: var(--red); }
+
+.status-pill {
+  display: inline-block;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 20px; font-family: var(--mono);
+}
+.pill-live { background: rgba(34,197,94,0.15); color: var(--green); }
+.pill-watch { background: rgba(245,158,11,0.15); color: var(--amber); }
+.pill-dead { background: rgba(239,68,68,0.10); color: var(--red); }
+.pill-test { background: rgba(77,143,255,0.15); color: var(--accent); }
+
+.comment-count {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--fg3); padding: 2px 6px;
+  border-radius: 20px; border: 1px solid var(--border);
+}
+.comment-count.has-comments { color: var(--accent); border-color: var(--accent-dim); }
+
+/* Comments panel */
+.comments-panel {
+  display: flex; flex-direction: column; overflow: hidden;
+  padding: 16px 0 16px 16px;
+}
+.comments-header { margin-bottom: 12px; flex-shrink: 0; }
+.comments-header .row-label { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--fg); }
+.comments-header .row-hint { font-size: 12px; color: var(--fg3); margin-top: 2px; }
+
+.comments-scroll {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-right: 2px; min-height: 0;
+}
+
+.no-selection {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: 8px; color: var(--fg3); font-size: 13px; text-align: center;
+}
+.no-selection svg { opacity: 0.3; }
+
+.comment-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px;
+}
+.comment-card.reply-card {
+  margin-left: 20px; border-left: 2px solid var(--accent-dim);
+  background: var(--surface2);
+}
+.comment-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.comment-author { font-size: 11px; font-weight: 600; color: var(--fg2); }
+.comment-time { font-size: 10px; color: var(--fg3); font-family: var(--mono); }
+.comment-body { font-size: 13px; line-height: 1.5; color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+.comment-actions { display: flex; gap: 8px; margin-top: 7px; }
+
+.btn-ghost {
+  font-size: 11px; color: var(--fg3); background: none; border: none;
+  cursor: pointer; padding: 2px 4px; border-radius: 4px;
+  transition: color 0.1s, background 0.1s; font-family: var(--sans);
+}
+.btn-ghost:hover { color: var(--fg); background: var(--surface2); }
+.btn-ghost.danger:hover { color: var(--red); }
+
+.compose-area {
+  flex-shrink: 0; margin-top: 12px;
+  border-top: 1px solid var(--border); padding-top: 12px;
+}
+.compose-label { font-size: 11px; color: var(--fg3); margin-bottom: 6px; font-family: var(--mono); letter-spacing: 0.04em; }
+.compose-label span { color: var(--accent); }
+
+textarea.compose-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--fg); font-family: var(--sans);
+  font-size: 13px; padding: 9px 11px; resize: none; outline: none;
+  transition: border-color 0.15s; min-height: 72px; line-height: 1.5;
+}
+textarea.compose-input::placeholder { color: var(--fg3); }
+textarea.compose-input:focus { border-color: var(--accent); }
+
+.compose-footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }
+.btn-cancel {
+  font-size: 12px; padding: 5px 12px; background: none;
+  border: 1px solid var(--border); color: var(--fg2);
+  border-radius: var(--radius-sm); cursor: pointer; font-family: var(--sans);
+  transition: all 0.1s;
+}
+.btn-cancel:hover { border-color: var(--fg2); color: var(--fg); }
+.btn-primary {
+  font-size: 12px; padding: 5px 14px; background: var(--accent);
+  border: none; color: #fff; border-radius: var(--radius-sm);
+  cursor: pointer; font-weight: 600; font-family: var(--sans); transition: opacity 0.1s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.edit-textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--accent);
+  border-radius: var(--radius-sm); color: var(--fg); font-family: var(--sans);
+  font-size: 13px; padding: 7px 9px; resize: none; outline: none;
+  line-height: 1.5; min-height: 60px;
+}
+.edit-row { display: flex; gap: 6px; margin-top: 6px; }
+
+@media (max-width: 680px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .table-panel { border-right: none; border-bottom: 1px solid var(--border); padding: 12px 0; max-height: 45vh; overflow-y: auto; }
+  .comments-panel { padding: 12px 0; }
+}
+</style>
+
+<div class="app-header">
+  <div class="dot"></div>
+  <h1>Signal Board</h1>
+  <span class="sync-badge" id="sync-badge">LOCAL</span>
+</div>
+
+<div class="layout">
+  <div class="table-panel">
+    <table id="signal-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th class="num">WR%</th>
+          <th class="num">PF</th>
+          <th class="num">N</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="comments-panel">
+    <div class="comments-header">
+      <div class="row-label" id="comments-row-label">—</div>
+      <div class="row-hint" id="comments-row-hint">Select a row to view comments</div>
+    </div>
+    <div class="comments-scroll" id="comments-scroll">
+      <div class="no-selection" id="no-selection">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Click a row to load its comments
+      </div>
+    </div>
+    <div class="compose-area" id="compose-area" style="display:none">
+      <div class="compose-label" id="compose-label">Add comment to <span id="compose-target-label">—</span></div>
+      <textarea class="compose-input" id="compose-input" placeholder="Write a note… (Ctrl+Enter to post)" rows="3"></textarea>
+      <div class="compose-footer">
+        <button class="btn-cancel" id="compose-cancel" style="display:none">Cancel reply</button>
+        <button class="btn-primary" id="compose-submit">Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Signal data ───────────────────────────────────────────────────────────────
+const SIGNALS = [
+  { code: 'T53',     desc: 'Wed short · H4 gate',    wr: 70,   pf: 1.71, n: 53,  status: 'watch' },
+  { code: 'A∪D',     desc: 'Union A+D variants',      wr: 69,   pf: 1.94, n: 51,  status: 'watch' },
+  { code: 'E',       desc: 'Variant E isolated',      wr: 71,   pf: 2.36, n: 34,  status: 'watch' },
+  { code: 'Hurst64', desc: 'Hurst 64-lo gate',        wr: null, pf: 5.60, n: 26,  status: 'test'  },
+  { code: 'LonBull', desc: 'London first-bar bull',   wr: null, pf: 3.08, n: 67,  status: 'test'  },
+  { code: 'DayGap',  desc: 'Day gap-down filter',     wr: null, pf: 5.51, n: 24,  status: 'test'  },
+  { code: 'H23-WD',  desc: 'H23 WeekDown',            wr: null, pf: null, n: null,status: 'dead'  },
+  { code: 'FBS3C',   desc: 'FBS/3Cons/VolSpike',      wr: null, pf: null, n: null,status: 'dead'  },
+  { code: 'MonthlyB',desc: 'MonthlyTouch_b61 live EA',wr: null, pf: null, n: null,status: 'live'  },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let db = null;           // db capability (null = use localStorage)
+let selectedCode = null;
+let replyingTo = null;
+let currentUnsub = null; // current onSnapshot unsubscribe
+let commentCounts = {};  // code -> count (for table badges)
+let currentComments = []; // comments for selected row
+
+// ── localStorage fallback ─────────────────────────────────────────────────────
+const LS_KEY = 'signal_board_v1';
+let lsState = { comments: {} };
+try { const r = localStorage.getItem(LS_KEY); if (r) lsState = JSON.parse(r); } catch(e) {}
+function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify(lsState)); } catch(e) {} }
+function lsGet(code) { return (lsState.comments[code] || []).slice(); }
+function lsSet(code, list) { lsState.comments[code] = list; lsSave(); }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' '
+    + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/New_York'}).replace(' ','').toLowerCase() + ' ET';
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function safeCode(c) { return c.replace(/[^a-zA-Z0-9_\-\.~:@+]/g,'_'); }
+
+// ── DB helpers ────────────────────────────────────────────────────────────────
+function codeCol(code) { return db.collection('comments/' + safeCode(code) + '/items'); }
+function codeDoc(code, id) { return db.doc('comments/' + safeCode(code) + '/items/' + id); }
+
+// ── Init capability ───────────────────────────────────────────────────────────
+(async () => {
+  const badge = document.getElementById('sync-badge');
+  try {
+    db = await claude.use('db');
+    if (db) {
+      badge.textContent = 'LIVE';
+      badge.classList.add('live');
+      // Subscribe to all code comment counts
+      SIGNALS.forEach(sig => {
+        try {
+          codeCol(sig.code).onSnapshot(snap => {
+            commentCounts[sig.code] = snap.size;
+            renderTableCounts();
+            if (selectedCode === sig.code) {
+              currentComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+              renderCommentList();
+            }
+          }, () => {});
+        } catch(e) {}
+      });
+    }
+  } catch(e) {}
+
+  // Seed from localStorage into db if db is live and ls has data
+  if (db) {
+    for (const [code, arr] of Object.entries(lsState.comments)) {
+      if (arr && arr.length > 0) {
+        for (const c of arr) {
+          try { await codeDoc(code, c.id).set(c); } catch(e) {}
+        }
+      }
+    }
+    lsState.comments = {};
+    lsSave();
+  }
+
+  renderTable();
+  renderComments(null);
+})();
+
+// ── Table render ──────────────────────────────────────────────────────────────
+function pfClass(pf) {
+  if (!pf) return '';
+  if (pf >= 1.10) return 'pf-pass';
+  if (pf >= 0.95) return 'pf-warn';
+  return 'pf-fail';
+}
+function pillClass(s) {
+  return { live:'pill-live', watch:'pill-watch', dead:'pill-dead', test:'pill-test' }[s] || '';
+}
+
+function getCount(code) {
+  if (db) return commentCounts[code] || 0;
+  return lsGet(code).length;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = SIGNALS.map(sig => {
+    const cnt = getCount(sig.code);
+    const sel = sig.code === selectedCode ? 'selected' : '';
+    const pf = sig.pf != null ? `<span class="pf-val ${pfClass(sig.pf)}">${sig.pf.toFixed(2)}</span>` : `<span style="color:var(--fg3)">—</span>`;
+    const wr = sig.wr != null ? sig.wr + '%' : `<span style="color:var(--fg3)">—</span>`;
+    const n = sig.n != null ? sig.n : `<span style="color:var(--fg3)">—</span>`;
+    const badge = cnt > 0
+      ? `<span class="comment-count has-comments">💬 ${cnt}</span>`
+      : `<span class="comment-count">💬 0</span>`;
+    return `<tr class="${sel}" onclick="selectRow('${esc(sig.code)}')">
+      <td><div class="code-name">${esc(sig.code)}</div><div class="code-desc">${esc(sig.desc)}</div></td>
+      <td class="num">${wr}</td>
+      <td class="num">${pf}</td>
+      <td class="num">${n}</td>
+      <td><span class="status-pill ${pillClass(sig.status)}">${sig.status}</span></td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTableCounts() {
+  // Only update badge cells without full re-render
+  const rows = document.querySelectorAll('#table-body tr');
+  rows.forEach((row, i) => {
+    const sig = SIGNALS[i];
+    if (!sig) return;
+    const cnt = getCount(sig.code);
+    const td = row.cells[5];
+    td.innerHTML = cnt > 0
+      ? `<span class="comment-count has-comments">💬 ${cnt}</span>`
+      : `<span class="comment-count">💬 0</span>`;
+  });
+}
+
+// ── Comments render ───────────────────────────────────────────────────────────
+function renderComments(code) {
+  const scroll = document.getElementById('comments-scroll');
+  const noSel = document.getElementById('no-selection');
+  const compose = document.getElementById('compose-area');
+  const lbl = document.getElementById('comments-row-label');
+  const hint = document.getElementById('comments-row-hint');
+
+  if (!code) {
+    scroll.innerHTML = '';
+    scroll.appendChild(noSel);
+    noSel.style.display = '';
+    compose.style.display = 'none';
+    lbl.textContent = '—';
+    hint.textContent = 'Select a row to view comments';
+    return;
+  }
+
+  noSel.style.display = 'none';
+  compose.style.display = '';
+  const sig = SIGNALS.find(s => s.code === code);
+  lbl.textContent = code + (sig ? ' · ' + sig.desc : '');
+  hint.textContent = db ? 'Live — synced across devices' : 'Local storage only';
+
+  // Reset compose
+  document.getElementById('compose-input').value = '';
+  replyingTo = null;
+  document.getElementById('compose-cancel').style.display = 'none';
+  setComposeLabel(code);
+
+  // Subscribe if using db
+  if (db) {
+    if (currentUnsub) { currentUnsub(); currentUnsub = null; }
+    try {
+      currentUnsub = codeCol(code).orderBy('ts','asc').onSnapshot(snap => {
+        currentComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCommentList();
+      }, () => {});
+    } catch(e) { renderCommentListFromLS(code); }
+  } else {
+    currentComments = lsGet(code);
+    renderCommentList();
+  }
+}
+
+function renderCommentList() {
+  const scroll = document.getElementById('comments-scroll');
+  const noSel = document.getElementById('no-selection');
+  // Keep no-selection in DOM but hidden
+  scroll.innerHTML = '';
+  noSel.style.display = 'none';
+  scroll.appendChild(noSel);
+
+  if (!currentComments || currentComments.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--fg3);font-size:12px;padding:8px 0;';
+    empty.textContent = 'No comments yet.';
+    scroll.appendChild(empty);
+    return;
+  }
+
+  const tops = currentComments.filter(c => !c.parentId);
+  const getReplies = c => currentComments.filter(r => r.parentId === c.id);
+  tops.sort((a,b) => (a.ts||0)-(b.ts||0));
+  tops.forEach(c => {
+    scroll.appendChild(makeCard(c, false));
+    getReplies(c).sort((a,b)=>(a.ts||0)-(b.ts||0)).forEach(r => scroll.appendChild(makeCard(r, true)));
+  });
+}
+
+function makeCard(c, isReply) {
+  const div = document.createElement('div');
+  div.className = 'comment-card' + (isReply ? ' reply-card' : '');
+  div.id = 'card-' + c.id;
+  div.innerHTML = `
+    <div class="comment-meta">
+      <span class="comment-author">${esc(c.author || 'You')}</span>
+      <span class="comment-time">${fmtTime(c.ts)}</span>
+      ${c.edited ? '<span class="comment-time" style="opacity:.6">(edited)</span>' : ''}
+    </div>
+    <div class="comment-body" id="body-${esc(c.id)}">${esc(c.text)}</div>
+    <textarea class="edit-textarea" id="edit-${esc(c.id)}" style="display:none" rows="3">${esc(c.text)}</textarea>
+    <div class="edit-row" id="editrow-${esc(c.id)}" style="display:none">
+      <button class="btn-primary" style="font-size:11px;padding:4px 10px;" onclick="saveEdit('${esc(c.id)}')">Save</button>
+      <button class="btn-cancel" onclick="cancelEdit('${esc(c.id)}')">Cancel</button>
+    </div>
+    <div class="comment-actions" id="actions-${esc(c.id)}">
+      ${!isReply ? `<button class="btn-ghost" onclick="startReply('${esc(c.id)}')">↩ Reply</button>` : ''}
+      <button class="btn-ghost" onclick="startEdit('${esc(c.id)}')">Edit</button>
+      <button class="btn-ghost danger" onclick="deleteComment('${esc(c.id)}')">Delete</button>
+    </div>`;
+  return div;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+function setComposeLabel(code) {
+  document.getElementById('compose-label').innerHTML =
+    `Add comment to <span>${esc(code)}</span>`;
+}
+
+function selectRow(code) {
+  selectedCode = code;
+  renderTable();
+  renderComments(code);
+}
+
+function startReply(parentId) {
+  replyingTo = parentId;
+  const cancel = document.getElementById('compose-cancel');
+  cancel.style.display = '';
+  document.getElementById('compose-label').innerHTML = `↩ Replying · <span>cancel below</span>`;
+  document.getElementById('compose-input').focus();
+}
+
+function cancelReply() {
+  replyingTo = null;
+  document.getElementById('compose-cancel').style.display = 'none';
+  setComposeLabel(selectedCode);
+  document.getElementById('compose-input').value = '';
+}
+
+async function postComment() {
+  const input = document.getElementById('compose-input');
+  const text = input.value.trim();
+  if (!text || !selectedCode) return;
+  const code = selectedCode;
+  const newId = uid();
+  const entry = { id: newId, text, ts: Date.now(), author: 'You', parentId: replyingTo || null };
+
+  if (db) {
+    try { await codeDoc(code, newId).set(entry); } catch(e) { console.error(e); }
+  } else {
+    const list = lsGet(code);
+    list.push(entry);
+    lsSet(code, list);
+    currentComments = lsGet(code);
+    renderCommentList();
+    renderTableCounts();
+  }
+
+  input.value = '';
+  replyingTo = null;
+  document.getElementById('compose-cancel').style.display = 'none';
+  setComposeLabel(code);
+}
+
+function startEdit(id) {
+  document.getElementById('body-' + id).style.display = 'none';
+  document.getElementById('edit-' + id).style.display = '';
+  document.getElementById('editrow-' + id).style.display = '';
+  document.getElementById('actions-' + id).style.display = 'none';
+  document.getElementById('edit-' + id).focus();
+}
+
+function cancelEdit(id) {
+  document.getElementById('body-' + id).style.display = '';
+  document.getElementById('edit-' + id).style.display = 'none';
+  document.getElementById('editrow-' + id).style.display = 'none';
+  document.getElementById('actions-' + id).style.display = '';
+}
+
+async function saveEdit(id) {
+  const val = document.getElementById('edit-' + id)?.value.trim();
+  if (!val || !selectedCode) return;
+  if (db) {
+    try { await codeDoc(selectedCode, id).update({ text: val, edited: Date.now() }); } catch(e) {}
+  } else {
+    const list = lsGet(selectedCode);
+    const c = list.find(x => x.id === id);
+    if (c) { c.text = val; c.edited = Date.now(); }
+    lsSet(selectedCode, list);
+    currentComments = lsGet(selectedCode);
+    renderCommentList();
+  }
+}
+
+async function deleteComment(id) {
+  if (!selectedCode) return;
+  if (db) {
+    try {
+      await codeDoc(selectedCode, id).delete();
+      // Also delete replies
+      const replies = currentComments.filter(c => c.parentId === id);
+      for (const r of replies) {
+        try { await codeDoc(selectedCode, r.id).delete(); } catch(e) {}
+      }
+    } catch(e) {}
+  } else {
+    let list = lsGet(selectedCode).filter(c => c.id !== id && c.parentId !== id);
+    lsSet(selectedCode, list);
+    currentComments = lsGet(selectedCode);
+    renderCommentList();
+    renderTableCounts();
+  }
+}
+
+// ── Wire up ───────────────────────────────────────────────────────────────────
+document.getElementById('compose-submit').onclick = postComment;
+document.getElementById('compose-cancel').onclick = cancelReply;
+document.getElementById('compose-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) postComment();
+});
+</script>
