@@ -1,3 +1,4 @@
+<!-- Copyright 2026 Nasif Hossain | endoscorpion@gmail.com | All rights reserved. -->
 # Agent Status (2026-10-20 21:40Z)
 
 | Agent | State | Branch | Last | Notes |
