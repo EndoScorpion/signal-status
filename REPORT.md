@@ -1,37 +1,35 @@
-# Signal Project — Win Points Report
+# Signal Project — Performance Summary
 
-_Last updated: 2026-10-20. Values are approximate. Past results are not advice._
+_Last updated: 2026-10-20. Units: ECN pts. Past results are not advice._
 
-## Stack A — Combined (2020–2026)
+## Combined Stack (2020–2026)
 
-| Metric | Value |
-|--------|-------|
-| WR (W%/t) | ~64% |
-| WV | ~+88 pts |
-| WP/w | ~96 pts |
-| WP/m | ~415 pts |
-| WP/yr | ~4,985 pts |
-| W%/w | ~64% |
-| W%/m | ~64% |
-| W%/yr | ~64% |
-| WP/t | ~29,900 pts |
+| Period | n | WR | PF | Net (0.1 lot) | Max DD |
+|--------|---|----|----|---------------|--------|
+| IS 2024-26 | 164 | 62% | 2.76 | $1,090 | $100 |
+| OOS 2020-23 | 182 | 66% | 2.54 | $1,989 | $122 |
+| All 2020-26 | 346 | 64% | 2.61 | $3,079 | $122 |
 
-n ≈ 341. Max DD ≈ 1,220 pts. All years positive.
+All 7 years positive.
 
-## Best Single Leg (OOS)
+## Individual Legs
 
-| Metric | Value |
-|--------|-------|
-| WR (W%/t) | ~75% |
-| WV | ~+130 pts |
-| WP/w | ~30 pts |
-| WP/m | ~130 pts |
-| WP/yr | ~1,560 pts |
-| W%/w | ~75% |
-| W%/m | ~75% |
-| W%/yr | ~75% |
-| WP/t | ~4,680 pts |
+| Leg | Period | n | WR | PF |
+|-----|--------|---|----|----|
+| Leg 1 | IS | 34 | 71% | 2.84 |
+| Leg 1 | OOS | 36 | 75% | 5.19 |
+| Leg 2 | IS | 57 | 56% | 2.53 |
+| Leg 2 | OOS | 67 | 61% | 1.77 |
+| Leg 3 | IS | 28 | 57% | 3.56 |
+| Leg 3 | OOS | 35 | 60% | 2.21 |
+| Leg 4 | IS | 45 | 67% | 2.67 |
+| Leg 4 | OOS | 44 | 70% | 3.07 |
 
-n ≈ 36 (OOS). PF > 5.
+## Latest Build (pending full confirmation)
 
-_Win logic is private. No formulas or entry rules published here._
+| Period | n | WR | PF | Net | Max DD |
+|--------|---|----|----|-----|--------|
+| IS 2024-26 | 152 | ~62% | 2.97 | $859 | $76 |
+| OOS 2020-23 | 175 | ~66% | 2.94 | $1,785 | $92 |
+
+Entry logic and strategy details are private.
