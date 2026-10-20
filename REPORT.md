@@ -1,6 +1,6 @@
 # Signal Project — Performance Summary
 
-_Last updated: 2026-10-20. Units: ECN pts ($0.10/pt at 0.1 lot). Past results are not advice._
+_Last updated: 2026-10-20. Validated: cycles 33-39, net of costs. Units: ECN pts ($0.10/pt at 0.1 lot). Past results are not advice._
 
 ## Combined Stack + Individual Legs (Unified)
 
