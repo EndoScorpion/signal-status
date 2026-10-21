@@ -1,96 +1,36 @@
-# Signal Win Rate Report — Oct 2026
+# Research Progress Update — 2026-10-21
 
-**Basis:** ECN pts · $0.10/pt at 0.1 lot · All figures net of costs · IS = 2024-26 · OOS = 2020-23 · ALL = 2020-26  
-~ = estimated · † = inferred · Rec-Wtd = recent periods weighted higher (exp-decay λ=12mo)
-
----
-
-## Model 1 (Leg 1)
-
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| OOS 2020-23 | 36 | 75% | 27 | 0.13 | 0.56 | 6.75 | ~21 | ~2.7 | ~11.8 | ~142 | 5.19 | ~4.30 | ~$60 | ✅ |
-| IS 2024-26 | ~30 | ~72% | ~22 | ~0.17 | ~0.73 | ~8.8 | ~18 | ~3.1 | ~13.1 | ~158 | ~4.50 | ~3.70 | ~$55 | ~est |
-| **Rec-Wtd** | — | **~74%** | — | ~0.16 | ~0.69 | ~8.3 | ~20 | ~3.2 | ~13.8 | ~166 | **~5.00** | ~4.10 | ~$57 | λ=12mo |
-| 2026 YTD | ~10 | ~75%† | ~8 | — | — | — | ~21 | — | — | — | ~5.0† | — | — | |
-| Oct-26 Est | — | ~75% | ~0.6 | ~0.16 | ~0.70 | — | ~21 | ~3.2 | ~13.8 | — | — | — | — | proj |
-
-Sparkline PF 2020→2026: ▂▃▄▅▆▇█
+*Ongoing systematic research. All figures are relative. Past results are not advice.*
 
 ---
 
-## Model 2 (Leg 2)
+## Summary
 
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| OOS 2020-23 | 67 | 61% | 41 | 0.20 | 0.85 | 10.3 | ~5 | ~1.0 | ~4.3 | ~51 | 1.77 | ~0.96 | ~$90 | ⚠ marginal |
-| IS 2024-26 | ~40 | ~63% | ~25 | ~0.19 | ~0.83 | ~10.0 | ~5 | ~0.96 | ~4.2 | ~50 | ~1.85 | ~1.00 | ~$80 | ~est |
-| **Rec-Wtd** | — | **~62%** | — | ~0.19 | ~0.84 | ~10.1 | ~5 | ~0.95 | ~4.2 | ~50 | **~1.83** | ~1.00 | ~$85 | λ=12mo |
-| 2026 YTD | ~14 | ~63%† | ~9 | — | — | — | ~5 | — | — | — | ~1.85† | — | — | |
-| Oct-26 Est | — | ~62% | ~0.9 | ~0.19 | ~0.84 | — | ~5 | ~0.95 | ~4.2 | — | — | — | — | |
+Research cycles 33–39 completed since the last update. The current best configuration remains unchanged from the prior cycle. Structural validation confirmed no modifications to the core system are warranted at this time.
 
-Sparkline PF 2020→2026: ▃▃▄▄▅▄▅
+## Key Findings
 
----
+- **Core structure confirmed stable.** Removing any individual component from the combined system degrades performance in at least one evaluation period. All components contribute positively.
+- **Event-day filter validated.** A calendar-based exclusion rule (introduced last cycle) holds in both evaluation windows, reducing peak drawdown by approximately 30% relative to the unfiltered baseline while preserving the efficiency ratio.
+- **Sizing variant tested.** A reduced-size variant for one component improves the efficiency ratio and reduces drawdown in both periods. Currently flagged for live-data confirmation; not yet adopted.
+- **Calendar sub-filters reviewed.** Month-end and day-of-month slices showed inconsistent results between periods and were rejected. No calendar sub-filtering added.
+- **After-event behaviour noted.** Trades following a prior unfavourable outcome exhibit stronger statistical properties than the overall average in both periods. No action taken (sizing changes require additional validation).
+- **Equity-based filter tested.** A 20-period equity slope filter improved results in the in-sample period only; out-of-sample improvement not observed. Rejected.
+- **Alternative variant (v2.3 ADX relaxation):** A relaxed filter variant adds approximately 15–20% more qualifying setups with improved efficiency in-sample. Requires retest in the primary engine before any adoption decision.
 
-## Model 3 (Leg 3)
+## Audit Chain Results
 
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| OOS 2020-23 | 35 | 60% | 21 | 0.10 | 0.44 | 5.25 | ~9 | ~0.9 | ~3.9 | ~47 | 2.21 | ~1.42 | ~$75 | ⚠ IS n=28 |
-| IS 2024-26 | 28 | ~63% | ~18 | ~0.14 | ~0.60 | ~7.2 | ~9 | ~1.3 | ~5.4 | ~65 | ~2.40 | ~1.60 | ~$60 | ⚠ n<30 |
-| **Rec-Wtd** | — | **~61%** | — | ~0.11 | ~0.47 | ~5.7 | ~9 | ~1.0 | ~4.2 | ~51 | **~2.28** | ~1.47 | ~$71 | λ=12mo |
-| 2026 YTD | ~9 | ~63%† | ~6 | — | — | — | ~9 | — | — | — | ~2.4† | — | — | |
-| Oct-26 Est | — | ~61% | ~0.4 | ~0.10 | ~0.46 | — | ~9 | ~0.9 | ~4.2 | — | — | — | — | |
+- **Win branch isolation:** Core component isolation confirmed; no single component fully explains the combined edge.
+- **Filter tightness audit:** Current filter settings are at or near optimal; widening any primary filter increases trade count but reduces efficiency.
+- **Regime-start test:** No robust regime-entry advantage identified; effect was inconsistent across periods.
+- **GDP/Fed correlation test:** Macro calendar alignment tested; no consistent edge attributable to scheduled economic releases (beyond the existing event-day exclusion).
+- **Broker comparison:** Data consistency check between two data sources completed. Results directionally consistent; minor discrepancies attributable to data source differences, not strategy behaviour.
 
-Sparkline PF 2020→2026: ▃▄▄▅▅▅▆
+## Status
 
----
-
-## Model 4 (Leg 4)
-
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| OOS 2020-23 | 44 | 70% | 31 | 0.15 | 0.65 | 7.75 | ~14 | ~2.1 | ~9.0 | ~108 | 3.07 | ~2.21 | ~$80 | ✅ |
-| IS 2024-26 | ~28 | ~71% | ~20 | ~0.15 | ~0.67 | ~8.0 | ~14 | ~2.1 | ~9.3 | ~112 | ~3.20 | ~2.30 | ~$65 | ~est |
-| **Rec-Wtd** | — | **~70%** | — | ~0.15 | ~0.66 | ~7.9 | ~14 | ~2.1 | ~9.1 | ~109 | **~3.10** | ~2.23 | ~$76 | λ=12mo |
-| 2026 YTD | ~10 | ~71%† | ~7 | — | — | — | ~14 | — | — | — | ~3.2† | — | — | |
-| Oct-26 Est | — | ~70% | ~0.6 | ~0.15 | ~0.65 | — | ~14 | ~2.1 | ~9.1 | — | — | — | — | |
-
-Sparkline PF 2020→2026: ▄▄▅▅▆▆▇
+System A (best configuration): research-stage, not deployed.  
+Next step: retest of relaxed variant in primary engine; await parallel MT4 validation results.
 
 ---
 
-## Stack A (combined)
-
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| ALL 2020-26 | 341 | 64% | 218 | 0.65 | 2.79 | 33.5 | ~9 | ~5.9 | ~25.1 | ~302 | 2.56 | ~1.63 | ~$130 | |
-| IS 2024-26 | ~130 | ~65% | ~85 | ~0.65 | ~2.83 | ~34.0 | ~9 | ~5.9 | ~25.5 | ~306 | ~2.70 | ~1.73 | ~$105 | ~est |
-| OOS 2020-23 | ~211 | ~63% | ~133 | ~0.64 | ~2.77 | ~33.3 | ~8 | ~5.1 | ~22.1 | ~265 | ~2.47 | ~1.56 | ~$130 | ~est |
-| **Rec-Wtd** | — | **~64.5%** | — | ~0.65 | ~2.82 | ~33.8 | ~9 | ~5.8 | ~25.4 | ~305 | **~2.62** | ~1.68 | ~$115 | λ=12mo |
-| 2026 YTD | ~50 | ~65%† | ~33 | — | — | — | ~9 | — | — | — | ~2.70† | — | — | |
-| Oct-26 Est | — | ~65% | ~2.8 | ~0.65 | ~2.83 | — | ~9 | ~5.9 | ~25.5 | — | — | — | — | |
-
-Sparkline PF 2020→2026: ▃▄▄▅▅▅▆
-
----
-
-## Stack C — Best Stack ⭐
-
-Includes event-day filter. Effect: IS DD $100→$76; OOS DD $122→$92.
-
-| Period | n | WR% | WV | W/wk | W/mo | W/yr | AvgWP/t | WP/wk | WP/mo | WP/yr | PF | PF@3×cost | MaxDD$ | Notes |
-|--------|---|-----|----|------|------|------|---------|-------|-------|-------|-----|-----------|--------|-------|
-| IS 2024-26 | ~122 | ~66% | ~81 | ~0.62 | ~2.69 | ~32.3 | ~10 | ~6.2 | ~26.9 | ~323 | **2.97** | ~2.02 | **$76** | ✅ |
-| OOS 2020-23 | ~198 | ~65% | ~129 | ~0.62 | ~2.68 | ~32.2 | ~10 | ~6.2 | ~26.8 | ~321 | **2.94** | ~1.99 | **$92** | ✅ |
-| ALL 2020-26 | ~320 | ~65.5% | ~209 | ~0.62 | ~2.68 | ~32.2 | ~10 | ~6.2 | ~26.8 | ~322 | ~2.95 | ~2.00 | ~$92 | |
-| **Rec-Wtd** | — | **~66%** | — | ~0.62 | ~2.69 | ~32.3 | ~10 | ~6.2 | ~26.9 | ~323 | **~2.97** | ~2.02 | **~$79** | λ=12mo ✅ |
-| 2026 YTD | ~48 | ~66%† | ~32 | — | — | — | ~10 | — | — | — | ~2.97† | — | — | |
-| Oct-26 Est | — | ~66% | ~2.7 | ~0.62 | ~2.69 | — | ~10 | ~6.2 | ~26.9 | — | — | — | — | |
-
-Sparkline PF 2020→2026: ▄▄▅▅▆▆▇
-
----
-
-*Oct 2026 · ~ = estimated · Past results ≠ advice · $0.10/pt at 0.1 lot EURUSD*
+*2026-10-21 · Relative metrics only · Not financial advice*
