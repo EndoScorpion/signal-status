@@ -1,0 +1,39 @@
+name: Slack Inbound Webhook Listener
+
+on:
+  repository_dispatch:
+    types: [slack_event]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slack-inbound
+  cancel-in-progress: false
+
+jobs:
+  append_to_jsonl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Process and Format Slack Event
+        env:
+          CHANNEL: ${{ github.event.client_payload.channel }}
+          SENDER: ${{ github.event.client_payload.user }}
+          TEXT: ${{ github.event.client_payload.text }}
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          jq -nc --arg ts "$TIMESTAMP" --arg ch "$CHANNEL" --arg sn "$SENDER" --arg tx "$TEXT" \
+            '{timestamp:$ts, channel:$ch, sender:$sn, text:$tx, processed:false}' >> slack_inbound.jsonl
+          echo "TIMESTAMP=$TIMESTAMP" >> "$GITHUB_ENV"
+
+      - name: Commit and Push
+        run: |
+          git config user.name "ClaudeSandboxSubAgent"
+          git config user.email "EndoScorpion@gmail.com"
+          git add slack_inbound.jsonl
+          git diff --cached --quiet || git commit -m "Webhook: Inbound Slack message queued ($TIMESTAMP)"
+          git pull --rebase origin main
+          git push origin main
